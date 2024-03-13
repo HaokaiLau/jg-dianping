@@ -1,5 +1,6 @@
 package com.jgdp.service;
 
+import com.jgdp.dto.Result;
 import com.jgdp.entity.ShopType;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IShopTypeService extends IService<ShopType> {
 
+    /**
+     * 查询店铺分类
+     * @return
+     */
+    Result queryList();
 }
