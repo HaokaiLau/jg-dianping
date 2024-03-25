@@ -27,6 +27,9 @@ public class RedisConstants {
     //互斥锁key过期时间
     public static final Long LOCK_SHOP_TTL = 10L;
 
+    //自增长key
+    public static final String INCREMENT_KEY = "icr:";
+
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
     public static final String BLOG_LIKED_KEY = "blog:liked:";
     public static final String FEED_KEY = "feed:";

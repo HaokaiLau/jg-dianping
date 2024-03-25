@@ -65,7 +65,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         }
 
         //8.返回
-        return Result.ok();
+        return Result.ok(shop);
     }
 
     /**
