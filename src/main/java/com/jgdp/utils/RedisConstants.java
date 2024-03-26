@@ -26,6 +26,10 @@ public class RedisConstants {
     public static final String LOCK_SHOP_KEY = "lock:shop:";
     //互斥锁key过期时间
     public static final Long LOCK_SHOP_TTL = 10L;
+    //分布式锁key前缀
+    public static final String KEY_PREFIX = "lock:";
+    //分布式锁key过期时间
+    public static final Long LOCK_TTL = 1000L;
 
     //自增长key
     public static final String INCREMENT_KEY = "icr:";

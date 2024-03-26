@@ -7,10 +7,13 @@ import com.jgdp.entity.VoucherOrder;
 import com.jgdp.mapper.VoucherOrderMapper;
 import com.jgdp.service.ISeckillVoucherService;
 import com.jgdp.service.IVoucherOrderService;
+import com.jgdp.utils.RedisConstants;
 import com.jgdp.utils.RedisIdBuilder;
+import com.jgdp.utils.SimpleRedisLock;
 import com.jgdp.utils.UserHolder;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,8 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     private ISeckillVoucherService seckillVoucherService;
     @Autowired
     private RedisIdBuilder redisIdBuilder;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 秒杀优惠券
@@ -63,12 +68,22 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
 
         //使用悲观锁来实现一人一单功能
         Long userId = UserHolder.getUser().getId();
-        //在开启事务前加锁可以保证释放锁之前事务已经提交
-        synchronized (userId.toString().intern()) {
+        SimpleRedisLock lock = new SimpleRedisLock(stringRedisTemplate, "order:" + userId);
+        //尝试获取锁
+        boolean isLock = lock.tryLock(RedisConstants.LOCK_TTL);
+        if (!isLock) {
+            //获取锁失败
+            return Result.fail("每位用户仅限购买一次!!");
+        }
+        try {
             //防止事务失效，要使用该对象的代理对象进行方法的调用
             IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
             return proxy.creatVoucherOrder(voucherId);
+        } finally {
+            //最后必须要释放锁，防止出现死锁
+            lock.unlock();
         }
+
     }
 
     @Transactional
